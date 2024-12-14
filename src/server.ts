@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createServer } from 'http';
 import mongoose from 'mongoose';
 import app from './app';
@@ -13,8 +14,7 @@ async function main() {
     server.listen(config.port, () => {
       console.log(`pixedon app listening on port ${config.port}`);
     });
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
     throw new AppError(
       404,
       'Server error.Please check your internet connection.',
