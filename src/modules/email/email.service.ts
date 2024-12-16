@@ -40,6 +40,30 @@ const sendEmailService = async (payload: IEmail) => {
     throw new AppError(400, 'Invalid Email Domain.');
   }
 
+  // check this user already send a request or not;
+
+  const requestAlreadyExists = await emailModel
+    .findOne({ email })
+    .sort({ createdAt: -1 });
+
+  if (requestAlreadyExists) {
+    const fiveMinutesInMs = 5 * 60 * 1000;
+
+    const currentTime = new Date().getTime();
+    const lastRequestTime = new Date(requestAlreadyExists.createdAt).getTime();
+    const nextAllowedTime = lastRequestTime + fiveMinutesInMs;
+
+    console.log(currentTime < nextAllowedTime);
+
+    if (currentTime < nextAllowedTime) {
+      const remainingTime = Math.ceil((nextAllowedTime - currentTime) / 1000);
+      throw new AppError(
+        400,
+        `You already sent a request. Please wait ${remainingTime} seconds before sending another request.`,
+      );
+    }
+  }
+
   const result = await emailModel.create(payload);
 
   if (!result.createdAt) {
