@@ -8,4 +8,8 @@ export default {
   db_url: process.env.db_url,
   frontendUrl: process.env.local_frontend_url,
   node_env: process.env.node_env,
+  authEmailUser: process.env.auth_user_email,
+  authEmailPassword: process.env.auth_user_password,
+  clientURL: process.env.client_url,
+  neverBounceApiKey: process.env.never_bounce_api_key,
 };
