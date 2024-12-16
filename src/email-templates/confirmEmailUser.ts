@@ -5,6 +5,7 @@ export interface IConfirmEmailUserTemplateProps {
   service: string;
   serviceType: string;
   projectDetails: string;
+  link: string;
 }
 
 export const confirmEmailUserTemplate = ({
@@ -12,6 +13,7 @@ export const confirmEmailUserTemplate = ({
   service,
   serviceType,
   projectDetails,
+  link,
 }: IConfirmEmailUserTemplateProps) => `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,7 +25,7 @@ export const confirmEmailUserTemplate = ({
       font-family: 'Roboto', sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f4f6fb; /* subtle light background */
+      background-color: #f4f6fb;
       color: #333333;
     }
     .email-container {
@@ -78,7 +80,7 @@ export const confirmEmailUserTemplate = ({
     .button {
       display: inline-block;
       background: linear-gradient(90deg, #4a90e2, #407ff0);
-      color: #fffff;
+      color: #ffffff;
       padding: 12px 30px;
       border-radius: 6px;
       text-decoration: none;
@@ -114,7 +116,7 @@ export const confirmEmailUserTemplate = ({
 <body>
   <div class="email-container">
     <div class="header">
-      <h1>Your Request Is Confirmed</h1>
+      <h1>Confirm Your Request</h1>
     </div>
     <div class="content">
       <h2>Hello, ${userName}</h2>
@@ -124,9 +126,9 @@ export const confirmEmailUserTemplate = ({
         <li><strong>Service Type:</strong> ${serviceType}</li>
         <li><strong>Project Details:</strong> ${projectDetails}</li>
       </ul>
-      <p>Our team is eager to bring your ideas to life. Should you have any questions or want to share additional input, feel free to contact us.</p>
+      <p>Our team is eager to bring your ideas to life. To confirm your request and get started, please click the button below:</p>
       <div class="button-container">
-        <a href="${config.clientURL}" class="button">Reach Out to Us</a>
+        <a href="${link}" target="_blank" class="button">Confirm Your Request</a>
       </div>
       <p>We appreciate your trust in PIXEDON and look forward to delivering outstanding results for your project!</p>
     </div>
@@ -136,5 +138,4 @@ export const confirmEmailUserTemplate = ({
     </div>
   </div>
 </body>
-</html>
-`;
+</html>`;

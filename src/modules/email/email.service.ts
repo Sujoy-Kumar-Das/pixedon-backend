@@ -1,6 +1,16 @@
+import config from '../../config';
+import { confirmEmailUserTemplate } from '../../email-templates';
 import AppError from '../../errors/AppError';
-import { checkDomain, detectSpam, sanitizeEmailBody } from '../../utils';
+import {
+  checkDomain,
+  createJWTToken,
+  detectSpam,
+  generateSecret,
+  sanitizeEmailBody,
+} from '../../utils';
+import { sendEmail } from '../../utils/sendEmail';
 import { IEmail } from './email.interface';
+import emailModel from './email.model';
 
 const sendEmailService = async (payload: IEmail) => {
   const { email, name, projectDetails, service, serviceType } = payload;
@@ -30,43 +40,42 @@ const sendEmailService = async (payload: IEmail) => {
     throw new AppError(400, 'Invalid Email Domain.');
   }
 
-  // const emailTemplate = confirmEmailUserTemplate({
-  //   projectDetails,
-  //   service,
-  //   serviceType,
-  //   userName: name,
-  // });
+  const result = await emailModel.create(payload);
 
-  // const adminEmailTemplate = adminNotificationTemplate({
-  //   projectDetails,
-  //   service,
-  //   serviceType,
-  //   submittedAt: '',
-  //   userEmail: email,
-  //   userName: name,
-  // });
+  if (!result.createdAt) {
+    new AppError(404, 'Failed to save the request.');
+  }
 
-  // const result = await EmailModel.create(payload);
+  const jwtPayload = {
+    email: result.email,
+    name: result.email,
+    createdAt: result.createdAt,
+  };
 
-  // if (!result.createdAt) {
-  //   new AppError(404, 'Failed to save the request.');
-  // }
+  const secret = generateSecret(64);
 
-  // // Send email to the user
-  // sendEmail({
-  //   to: email,
-  //   subject: `Your Service Request Confirmation - ${service}`,
-  //   html: emailTemplate,
-  // });
+  // create token for confirm request.
+  const token = createJWTToken({ payload: jwtPayload, secret });
 
-  // // Send email to the admin
-  // sendEmail({
-  //   to: config.authEmailUser as string,
-  //   subject: `New Service Request Submitted by ${name} - ${service}`,
-  //   html: adminEmailTemplate,
-  // });
+  // url for confirm request.
+  const url = `${config.confirmRequestClientLink}?token=${token}`;
 
-  // return result;
+  const emailTemplate = confirmEmailUserTemplate({
+    projectDetails,
+    service,
+    serviceType,
+    userName: name,
+    link: url,
+  });
+
+  // Send email to the user
+  sendEmail({
+    to: email,
+    subject: `Confirm Your Service Request - ${service}`,
+    html: emailTemplate,
+  });
+
+  return result;
 };
 
 export const emailService = {

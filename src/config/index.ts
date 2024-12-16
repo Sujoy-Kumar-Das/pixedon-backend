@@ -12,4 +12,5 @@ export default {
   authEmailPassword: process.env.auth_user_password,
   clientURL: process.env.client_url,
   neverBounceApiKey: process.env.never_bounce_api_key,
+  confirmRequestClientLink: process.env.confirm_request_client_link,
 };
