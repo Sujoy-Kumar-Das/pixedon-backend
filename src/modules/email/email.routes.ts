@@ -11,4 +11,6 @@ router.post(
   emailController.sendEmailController,
 );
 
+router.post('/email-confirm', emailController.confirmEmailController);
+
 export const emailRoutes = router;

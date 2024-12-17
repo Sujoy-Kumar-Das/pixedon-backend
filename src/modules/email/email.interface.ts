@@ -6,4 +6,5 @@ export interface IEmail {
   projectDetails: string;
   service: IService;
   serviceType: 'free' | 'premium';
+  confirm?: boolean;
 }

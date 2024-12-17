@@ -1,12 +1,16 @@
+import { JwtPayload } from 'jsonwebtoken';
 import config from '../../config';
-import { confirmEmailUserTemplate } from '../../email-templates';
+import {
+  confirmEmailUserTemplate,
+  RequestConfirmedEmailTemplate,
+} from '../../email-templates';
 import AppError from '../../errors/AppError';
 import {
   checkDomain,
   createJWTToken,
   detectSpam,
-  generateSecret,
   sanitizeEmailBody,
+  verifyJWT,
 } from '../../utils';
 import { sendEmail } from '../../utils/sendEmail';
 import { IEmail } from './email.interface';
@@ -76,10 +80,14 @@ const sendEmailService = async (payload: IEmail) => {
     createdAt: result.createdAt,
   };
 
-  const secret = generateSecret(64);
+  const secret = config.requestSecret as string;
 
   // create token for confirm request.
-  const token = createJWTToken({ payload: jwtPayload, secret });
+  const token = createJWTToken({
+    payload: jwtPayload,
+    secret,
+    options: { expiresIn: '5m' },
+  });
 
   // url for confirm request.
   const url = `${config.confirmRequestClientLink}?token=${token}`;
@@ -102,6 +110,55 @@ const sendEmailService = async (payload: IEmail) => {
   return result;
 };
 
+const confirmRequestService = async (payload: string) => {
+  const decoded = verifyJWT(payload, config.requestSecret as string);
+
+  if (!decoded) {
+    throw new AppError(404, 'Invalid token');
+  }
+
+  const { email, createdAt } = decoded as JwtPayload;
+
+  const emailRequest = await emailModel.findOne({ email, createdAt });
+
+  if (!emailRequest) {
+    throw new AppError(404, 'Invalid request.');
+  }
+
+  if (emailRequest?.confirm) {
+    throw new AppError(400, 'Your request already confirmed.');
+  }
+
+  const confirmRequest = await emailModel.findOneAndUpdate(
+    { email, createdAt },
+    { confirm: true },
+    { new: true },
+  );
+
+  if (!confirmRequest?.confirm) {
+    throw new AppError(400, 'Failed to confirm your request.Please try again.');
+  }
+
+  const confirmedEmail = RequestConfirmedEmailTemplate({
+    service: confirmRequest.service,
+    serviceType: confirmRequest.serviceType,
+    userName: confirmRequest.name,
+  });
+
+  try {
+    sendEmail({
+      to: confirmRequest.email,
+      subject: "Service Request Confirmed: Here's What to Expect Next",
+      html: confirmedEmail,
+    });
+  } catch {
+    throw new AppError(400, 'Failed to send confirm request.');
+  }
+
+  return confirmRequest;
+};
+
 export const emailService = {
   sendEmailService,
+  confirmRequestService,
 };

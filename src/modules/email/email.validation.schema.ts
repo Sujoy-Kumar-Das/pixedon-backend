@@ -19,4 +19,6 @@ const sendEmailValidationSchema = z.object({
   }),
 });
 
-export const emailValidationSchema = { sendEmailValidationSchema };
+export const emailValidationSchema = {
+  sendEmailValidationSchema,
+};

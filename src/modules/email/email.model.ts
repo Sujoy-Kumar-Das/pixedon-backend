@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { IEmail } from './email.interface';
 import { IService } from './service.type';
 
 const services = [
@@ -40,6 +41,10 @@ const emailSchema = new mongoose.Schema(
       type: String,
       enum: ['free', 'premium'],
       default: 'free',
+    },
+    confirm: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true },
