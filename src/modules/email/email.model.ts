@@ -1,14 +1,5 @@
 import mongoose from 'mongoose';
-import { IEmail } from './email.interface';
-import { IService } from './service.type';
-
-const services = [
-  IService.DE,
-  IService.DM,
-  IService.EC,
-  IService.GD,
-  IService.WD,
-];
+import { services } from './service';
 
 // Create the schema for IEmail
 const emailSchema = new mongoose.Schema(

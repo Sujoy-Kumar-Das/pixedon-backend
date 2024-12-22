@@ -1,10 +1,14 @@
 import { Router } from 'express';
 import { emailRoutes } from '../modules/email/email.routes';
+import { userRoutes } from '../modules/user/user.routes';
 
 const router = Router();
 
-const moduleRoutes = [{ path: '/api/v1', route: emailRoutes }];
+const moduleRoutes = [
+  { path: '', route: emailRoutes },
+  { path: '', route: userRoutes },
+];
 
-moduleRoutes.map((route) => router.use(route.path, route.route));
+moduleRoutes.map((route) => router.use(`/api/v1${route.path}`, route.route));
 
 export default router;

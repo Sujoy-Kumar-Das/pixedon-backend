@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { services } from './email.const';
+import { services } from './service';
 
 // Create the Zod schema
 const sendEmailValidationSchema = z.object({

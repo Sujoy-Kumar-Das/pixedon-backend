@@ -1,4 +1,10 @@
-import { IService } from './service.type';
+export enum IService {
+  WD = 'WD',
+  GD = 'GD',
+  DM = 'DM',
+  DE = 'DE',
+  EC = 'EC',
+}
 
 export interface IEmail {
   name: string;

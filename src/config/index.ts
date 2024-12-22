@@ -14,4 +14,5 @@ export default {
   neverBounceApiKey: process.env.never_bounce_api_key,
   confirmRequestClientLink: process.env.confirm_request_client_link,
   requestSecret: process.env.request_secret,
+  saltRound: process.env.salt_round,
 };
