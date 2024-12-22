@@ -11,9 +11,15 @@ export interface IUser {
   designation: IService;
   isBlock: boolean;
   needPasswordChange: boolean;
+  passwordChangeAt: Date;
 }
 
 export interface IUserMethods extends Model<IUser> {
+  isJwtIssuedBeforePasswordChange(
+    passwordChangeAt: Date,
+    jwtIssuedTime: number,
+  ): boolean;
+
   isPasswordMatched({
     plainTextPassword,
     hashedPassword,

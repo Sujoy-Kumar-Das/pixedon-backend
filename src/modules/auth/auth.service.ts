@@ -1,8 +1,10 @@
+import { JwtPayload } from 'jsonwebtoken';
 import config from '../../config';
 import AppError from '../../errors/AppError';
 import { createJWTToken } from '../../utils';
+import hashPassword from '../../utils/hashPassword';
 import UserModel from '../user/user.model';
-import { ILoginUser } from './auth.interface';
+import { IChangePassword, ILoginUser } from './auth.interface';
 
 const loginService = async (payload: ILoginUser) => {
   const { email, password } = payload;
@@ -57,6 +59,57 @@ const loginService = async (payload: ILoginUser) => {
   };
 };
 
+const changePassword = async (
+  userData: JwtPayload,
+  payload: IChangePassword,
+) => {
+  const { oldPassword, newPassword } = payload;
+  const { email, role, userId } = userData;
+
+  const user = await UserModel.findOne({ _id: userId, email, role });
+
+  if (!user) {
+    throw new AppError(404, 'This user is not exists');
+  }
+
+  const currentPassword = user.password as string;
+
+  //   check is the password matched
+  const isPasswordMatched = await UserModel.isPasswordMatched({
+    plainTextPassword: oldPassword,
+    hashedPassword: currentPassword,
+  });
+
+  if (!isPasswordMatched) {
+    throw new AppError(403, 'Old password is wrong.');
+  }
+
+  const newHashedPassword = await hashPassword(newPassword);
+
+  const isOldAndNewPasswordAreSame = await UserModel.isPasswordMatched({
+    plainTextPassword: newPassword,
+    hashedPassword: currentPassword,
+  });
+
+  if (isOldAndNewPasswordAreSame) {
+    throw new AppError(401, 'New password must be different.');
+  }
+
+  await UserModel.findOneAndUpdate(
+    {
+      email: user.email,
+      role: user.role,
+      _id: user._id,
+    },
+    {
+      password: newHashedPassword,
+      passwordChangeAt: new Date(),
+    },
+  );
+  return null;
+};
+
 export const authService = {
   loginService,
+  changePassword,
 };

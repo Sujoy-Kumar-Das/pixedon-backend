@@ -52,6 +52,9 @@ const UserSchema = new Schema<IUser, IUserMethods>(
       type: Boolean,
       default: true,
     },
+    passwordChangeAt: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -83,6 +86,15 @@ UserSchema.methods.toJSON = function () {
   delete user.password;
   delete user.isBlocked;
   return user;
+};
+
+// is jwt issued before password change method
+UserSchema.statics.isJwtIssuedBeforePasswordChange = function (
+  passwordChangeAt: Date,
+  jwtIssuedTime: number,
+) {
+  const passwordChangeTime = new Date(passwordChangeAt).getTime() / 1000;
+  return jwtIssuedTime < passwordChangeTime;
 };
 
 // Create and Export the User Model
