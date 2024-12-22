@@ -1,11 +1,11 @@
+import bcrypt from 'bcrypt';
 import { model, Schema } from 'mongoose';
 import hashPassword from '../../utils/hashPassword';
 import { services } from '../email/service';
 import { USER_ROLE } from './user.constant';
-import { IUser } from './user.interface';
-
+import { IUser, IUserMethods } from './user.interface';
 // Mongoose Schema for IUser
-const UserSchema = new Schema<IUser>(
+const UserSchema = new Schema<IUser, IUserMethods>(
   {
     name: {
       type: String,
@@ -68,6 +68,15 @@ UserSchema.pre('save', async function (next) {
   next();
 });
 
+// is password matched method
+UserSchema.statics.isPasswordMatched = async function ({
+  plainTextPassword,
+  hashedPassword,
+}) {
+  console.log({ plainTextPassword, hashedPassword });
+  return await bcrypt.compare(plainTextPassword, hashedPassword);
+};
+
 // method for remove password and sensitive fields
 UserSchema.methods.toJSON = function () {
   const user = this.toObject();
@@ -77,6 +86,6 @@ UserSchema.methods.toJSON = function () {
 };
 
 // Create and Export the User Model
-const UserModel = model<IUser>('User', UserSchema);
+const UserModel = model<IUser, IUserMethods>('User', UserSchema);
 
 export default UserModel;

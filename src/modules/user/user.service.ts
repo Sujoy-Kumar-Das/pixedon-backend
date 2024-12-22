@@ -1,7 +1,6 @@
 import { sendConfirmationEmailTemplate } from '../../email-templates';
 import AppError from '../../errors/AppError';
 import { generateRandomPassword } from '../../utils';
-import hashPassword from '../../utils/hashPassword';
 import { sendEmail } from '../../utils/sendEmail';
 import { USER_ROLE } from './user.constant';
 import { IUser } from './user.interface';
@@ -34,12 +33,14 @@ const createAdmin = async (payload: IUser) => {
   // set role
   payload.role = USER_ROLE.admin;
 
-  const newPassword = generateRandomPassword();
+  const password = generateRandomPassword();
 
   // const set password
-  payload.password = await hashPassword(newPassword);
+  payload.password = password;
 
   const result = await UserModel.create(payload);
+
+  console.log(payload);
 
   if (!result._id) {
     throw new AppError(400, 'Failed to created user.');
@@ -48,7 +49,7 @@ const createAdmin = async (payload: IUser) => {
   const emailTemplate = sendConfirmationEmailTemplate({
     user: result.name,
     email: result.email,
-    password: newPassword,
+    password,
     role: result.role,
   });
 
@@ -80,10 +81,10 @@ const createModerator = async (payload: IUser) => {
   // set role
   payload.role = USER_ROLE.moderator;
 
-  const newPassword = generateRandomPassword();
+  const password = generateRandomPassword();
 
   // const set password
-  payload.password = await hashPassword(newPassword);
+  payload.password = password;
 
   const result = await UserModel.create(payload);
 
@@ -94,7 +95,7 @@ const createModerator = async (payload: IUser) => {
   const emailTemplate = sendConfirmationEmailTemplate({
     user: result.name,
     email: result.email,
-    password: newPassword,
+    password,
     role: result.role,
   });
 

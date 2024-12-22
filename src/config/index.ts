@@ -15,4 +15,6 @@ export default {
   confirmRequestClientLink: process.env.confirm_request_client_link,
   requestSecret: process.env.request_secret,
   saltRound: process.env.salt_round,
+  accessToken: process.env.access_token,
+  refreshToken: process.env.refresh_token,
 };
