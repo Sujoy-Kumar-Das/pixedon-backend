@@ -7,6 +7,63 @@ import { USER_ROLE } from './user.constant';
 import { IUser } from './user.interface';
 import UserModel from './user.model';
 
+// create admin service
+const createAdmin = async (payload: IUser) => {
+  const { email, name } = payload;
+
+  const admins = await UserModel.find({
+    role: USER_ROLE.admin,
+  }).estimatedDocumentCount();
+
+  if (admins > 3) {
+    throw new AppError(
+      404,
+      'Failed to create admin. You have reached the limit.',
+    );
+  }
+
+  const user = await UserModel.findOne({ email });
+
+  if (user) {
+    throw new AppError(
+      400,
+      `${name} already have an account as ${user.role} role`,
+    );
+  }
+
+  // set role
+  payload.role = USER_ROLE.admin;
+
+  const newPassword = generateRandomPassword();
+
+  // const set password
+  payload.password = await hashPassword(newPassword);
+
+  const result = await UserModel.create(payload);
+
+  if (!result._id) {
+    throw new AppError(400, 'Failed to created user.');
+  }
+
+  const emailTemplate = sendConfirmationEmailTemplate({
+    user: result.name,
+    email: result.email,
+    password: newPassword,
+    role: result.role,
+  });
+
+  try {
+    sendEmail({
+      to: email,
+      subject: 'Your Admin Role Confirmation and Account Details',
+      html: emailTemplate,
+    });
+  } catch {
+    throw new AppError(400, 'Something went wrong please try again.');
+  }
+  return result;
+};
+
 // create moderator service
 const createModerator = async (payload: IUser) => {
   const { email, name } = payload;
@@ -133,6 +190,7 @@ const deleteUser = async (id: string) => {
 };
 
 export const userService = {
+  createAdmin,
   createModerator,
   getAllUser,
   getSingleUser,

@@ -7,6 +7,13 @@ const router = Router();
 
 // Create a new user
 router.post(
+  '/user/admin',
+  validateRequest(userValidationSchema.createUserSchema),
+  userController.createAdminController,
+);
+
+// Create a new user
+router.post(
   '/user/moderator',
   validateRequest(userValidationSchema.createUserSchema),
   userController.createModeratorController,

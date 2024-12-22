@@ -17,7 +17,7 @@ export const sendConfirmationEmailTemplate = ({
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Moderator Role Confirmation</title>
+    <title>${role.toUpperCase()} Role Confirmation</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -60,7 +60,7 @@ export const sendConfirmationEmailTemplate = ({
   </head>
   <body>
     <div class="email-container">
-      <h1>Moderator Role Confirmation</h1>
+      <h1>${role.toUpperCase()} Role Confirmation</h1>
       <p>Dear ${user},</p>
       <p>
         We are pleased to inform you that you have been successfully added as a

@@ -1,11 +1,21 @@
 import { catchAsync, sendResponse } from '../../utils';
 import { userService } from './user.service';
 
+const createAdminController = catchAsync(async (req, res) => {
+  const result = await userService.createAdmin(req.body);
+  sendResponse(res, {
+    data: result,
+    message: `${result.name.toUpperCase()} is now a admin.`,
+    statusCode: 200,
+    success: true,
+  });
+});
+
 const createModeratorController = catchAsync(async (req, res) => {
   const result = await userService.createModerator(req.body);
   sendResponse(res, {
     data: result,
-    message: `${result.name.toUpperCase()} are added as a moderator successfully.`,
+    message: `${result.name.toUpperCase()} is now a moderator.`,
     statusCode: 200,
     success: true,
   });
@@ -72,6 +82,7 @@ const deleteUserController = catchAsync(async (req, res) => {
 });
 
 export const userController = {
+  createAdminController,
   createModeratorController,
   getAllUsersController,
   getSingleUserController,
