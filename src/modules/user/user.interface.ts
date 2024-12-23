@@ -11,7 +11,8 @@ export interface IUser {
   designation: IService;
   isBlock: boolean;
   needPasswordChange: boolean;
-  passwordChangeAt: Date;
+  passwordChangeAt: Date | null;
+  resetTime: Date | null;
 }
 
 export interface IUserMethods extends Model<IUser> {

@@ -17,4 +17,5 @@ export default {
   saltRound: process.env.salt_round,
   accessToken: process.env.access_token,
   refreshToken: process.env.refresh_token,
+  forgotPasswordFrontendLink: process.env.forgot_password_frontendLink,
 };

@@ -54,6 +54,11 @@ const UserSchema = new Schema<IUser, IUserMethods>(
     },
     passwordChangeAt: {
       type: Date,
+      default: null,
+    },
+    resetTime: {
+      type: Date,
+      default: null,
     },
   },
   {
