@@ -1,11 +1,34 @@
 import { catchAsync, sendResponse } from '../../utils';
+import setCookie from '../../utils/setCookie';
 import { authService } from './auth.service';
 
 const loginController = catchAsync(async (req, res) => {
-  const result = await authService.loginService(req.body);
+  const { accessToken, refreshToken } = await authService.loginService(
+    req.body,
+  );
+
+  // set the access token to the cookie
+  setCookie({
+    res,
+    key: 'accessToken',
+    value: accessToken,
+    options: {
+      maxAge: 1 * 24 * 60 * 60 * 1000,
+    },
+  });
+
+  // set the refresh token to the cookie
+  setCookie({
+    res,
+    key: 'refreshToken',
+    value: refreshToken,
+    options: {
+      maxAge: 10 * 24 * 60 * 60 * 1000,
+    },
+  });
 
   sendResponse(res, {
-    data: result,
+    data: { accessToken },
     statusCode: 200,
     success: true,
     message: 'Login successful',
@@ -46,9 +69,33 @@ const resetPasswordController = catchAsync(async (req, res) => {
   });
 });
 
+const refreshTokenController = catchAsync(async (req, res) => {
+  const { refreshToken } = req.cookies;
+
+  const { accessToken } = await authService.refreshToken(refreshToken);
+
+  // set the access token to the cookie
+  setCookie({
+    res,
+    key: 'accessToken',
+    value: accessToken,
+    options: {
+      maxAge: 1 * 24 * 60 * 60 * 1000,
+    },
+  });
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: 'Access token retrieve successfully.',
+    data: accessToken,
+  });
+});
+
 export const authController = {
   loginController,
   changePasswordController,
   forgotPasswordController,
   resetPasswordController,
+  refreshTokenController,
 };

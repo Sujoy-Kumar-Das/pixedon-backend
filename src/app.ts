@@ -1,8 +1,8 @@
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
-import router from './routes';
 import { globalErrorHandler, notFound } from './middlewares';
-
+import router from './routes';
 const app = express();
 
 app.use(
@@ -14,6 +14,7 @@ app.use(
 
 // Parsers
 app.use(express.json());
+app.use(cookieParser());
 
 // Routes
 app.use(router);

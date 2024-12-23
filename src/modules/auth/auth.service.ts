@@ -48,7 +48,7 @@ const loginService = async (payload: ILoginUser) => {
 
   const refreshToken = createJWTToken({
     payload: jwtPayload,
-    secret: config.accessToken as string,
+    secret: config.refreshToken as string,
     options: {
       expiresIn: '10d',
     },
@@ -193,9 +193,49 @@ const resetPassword = async (token: string, payload: { password: string }) => {
   );
 };
 
+const refreshToken = async (token: string) => {
+  const decodedToken = verifyJWT(token, config.refreshToken as string);
+
+  const { userId, iat } = decodedToken as JwtPayload;
+
+  const user = await UserModel.findById(userId);
+
+  if (!user) {
+    throw new AppError(404, 'This user is not exists');
+  }
+
+  if (user?.isBlock) {
+    throw new AppError(403, 'This user is blocked.');
+  }
+
+  if (
+    user.passwordChangeAt &&
+    UserModel.isJwtIssuedBeforePasswordChange(
+      user.passwordChangeAt,
+      iat as number,
+    )
+  ) {
+    throw new AppError(404, 'You are not authorized.');
+  }
+
+  const jwtPayload = {
+    role: user.role,
+    userId: user._id,
+  };
+
+  const accessToken = createJWTToken({
+    payload: jwtPayload,
+    secret: config.accessToken as string,
+    options: { expiresIn: '1d' },
+  });
+
+  return { accessToken };
+};
+
 export const authService = {
   loginService,
   changePassword,
   forgotPassword,
   resetPassword,
+  refreshToken,
 };
